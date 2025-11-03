@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Nature and Machines in 13 Areas</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Moirai+One&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            width: 100vw; height: 100vh; margin: 0; padding: 0; overflow: hidden; background-color: black;
+            font-family: 'Moirai One', system-ui; 
+        }
+        #map { width: 100%; height: 100%; }
+        .mapboxgl-ctrl-logo, .mapboxgl-ctrl-attrib { display: none !important; }
+
+        #header {
+            position: fixed; top: 0; left: 0; width: 100%;
+            background-color: white; 
+            padding: 55px 0 20px; 
+            z-index: 10; box-sizing: border-box;
+            text-align: center; 
+        }
+        #header-title { display: none; }
+        #header-logo {
+            width: 250px; 
+            height: auto;
+            margin: 0 auto; 
+            display: block; 
+        }
+
+        #footer-container {
+            display: none;
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            background-color: white; 
+            z-index: 10;
+            border: 1px solid #000;
+            box-sizing: border-box;
+        }
+        #footer-logo {
+            display: block;
+            width: 100%; 
+            height: auto; 
+            position: static; 
+            transform: none; 
+        }
+        
+        #modal-container { display: none; position: fixed; z-index: 20; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
+        
+        /* --- [수정] 6번 요청: 팝업창 크기 1.5배 (400px -> 600px) --- */
+        #modal-content { 
+            background-color: #ffffff;
+            color: black; 
+            margin: 15% auto; /* [수정] 위쪽 여백 조절 */
+            padding: 30px; 
+            border: 1px solid #000;
+            width: 80%; /* [수정] 60% -> 80% */
+            max-width: 600px; /* [수정] 400px -> 600px */
+            aspect-ratio: 1 / 1; 
+            position: relative;
+            box-sizing: border-box; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* --- [수정 완료] --- */
+
+
+        #modal-number-text {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            font-size: 16px;
+            color: black;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        /* 6번 요청: 팝업창이 커짐에 따라 이미지도 자동으로 커짐 (CSS 수정 불필요) */
+        #modal-image {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            transform: scale(1.0);
+            transition: transform 0.05s ease-out;
+        }
+        
+        #info-modal-container { 
+            display: none; 
+            position: fixed; 
+            z-index: 31;
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.6); 
+        }
+        
+        #info-modal-content { 
+            background-color: #ffffff;
+            color: black; 
+            margin: 5% auto; 
+            padding: 40px; 
+            border: 1px solid #000;
+            width: 90%; 
+            max-width: 1300px; 
+            max-height: 1200px;
+            position: relative; 
+            box-sizing: border-box; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+        }
+        
+        .info-modal-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 60px;
+            text-align: left; 
+            align-items: start;
+        }
+        .info-column .logo {
+            width: 200px; 
+            height: auto;
+            margin-bottom: 20px;
+            border: none;
+        }
+        .info-column h3 {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 5px;
+        }
+        .info-column p {
+            margin: 0 0 15px 0;
+            line-height: 1.6;
+        }
+        .info-column .copyright-text {
+            font-size: 12px;
+            margin-top: 30px;
+            color: #555;
+        }
+        .info-column img {
+            width: 100%;
+            height: auto;
+            border: none;
+        }
+
+
+         #intro-modal-container {
+            display: flex; 
+            position: fixed;
+            z-index: 30; 
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: #ffed4b; 
+            align-items: center;
+            justify-content: center; 
+            text-align: center;
+            color: black; 
+            flex-direction: column; 
+            overflow: hidden; 
+        }
+        #intro-modal-content {
+            position: relative;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            width: 100%; 
+            height: 100%; 
+        }
+        #intro-logo {
+            width: 750px; 
+            max-width: 90%; 
+            height: auto;
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            z-index: 3; 
+            transition: opacity 0.5s ease;
+        }
+         #intro-subtitle {
+             font-size: 16px;
+             position: absolute; 
+             bottom: 50px; 
+             left: 50%;
+             transform: translateX(-50%);
+             width: 90%; 
+             z-index: 2; 
+             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+             line-height: 1.6; 
+             transition: opacity 0.5s ease;
+         }
+        
+        .text-label {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 12px; 
+            color: black;
+            background-color: rgba(255, 255, 255, 1);
+            padding: 3px 6px;
+            border-radius: 4px;
+            border: 1px solid #aaa;
+            text-align: center;
+            pointer-events: none;
+            white-space: nowrap;
+            display: inline-block;
+        }
+        .mapboxgl-marker .text-label {
+             transform: translateY(-120%); 
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <div id="header">
+        <div id="header-title"></div>
+        <img id="header-logo" src="logo01.png" alt="Logo 02">
+    </div>
+
+    <div id="footer-container">
+        <img id="footer-logo" src="footer.png" alt="Footer">
+    </div>
+
+    <div id="modal-container">
+        <div id="modal-content">
+            <span id="modal-number-text"></span> 
+            <img id="modal-image" src="" alt="Popup Image" />
+        </div>
+    </div>
+    <div id="info-modal-container">
+        <div id="info-modal-content">
+            <div id="info-modal-text"></div>
+        </div>
+    </div>
+
+    <div id="intro-modal-container">
+        <img id="intro-logo" src="logo02.png" alt="Logo 01">
+        
+        <div id="intro-modal-content">
+            
+            <p id="intro-subtitle">
+                <span style="font-size: 16px;"><strong>평소 걸어다니는 13가지 구역 속 자연과 기계의 흐름을 비교해보자!</strong></span>
+                <br> 
+                <br>
+                시작하려면 <span class="text-label">스페이스 바</span>를 눌러주세요!
+                <br> 
+                조작 방법을 알고 싶다면 <span class="text-label">i 또는 ㅑ</span>를 눌러주세요!
+            </p>
+        </div>
+    </div>
+    
+    <audio id="pop-sound" src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU0HT18AAAAAAAAAAAAAAAAAAAAAAP//AAAA//8AAAAA//8AAAD//wAAAP//AAAA//8AAAD//wEABQAcAB4AIAAhACIAIwAjACQAJAAkACQAJQAjACIAIQAgAB0AGgAYABQAFAATABMAFAAUABUAFgAXABgAGQAbABwAHQAgACIAJAAkACQAJQAjACIAIAAdABwAGgAYABYAFQAVABUAFQAWABcAGQAcAB4AIgAjACQAJAAjACIAIAAeABwAGgAYABUAFQAUABQAFQAWABcAGgAcAB8AIQAjACQAJQAjACIAIAAeABsAGgAYABcAFgAWABYAFwAYABkAGwAfACIAIwAjACMAIgAfABwAGwAaABgAFwAWABYAFwAYABkAGwAfACIAIwAjACMAIgAfABwAGwAaABgAFwAWABYAFwAYABkAGwAfACIAIwAjACMAIgAfABwAGwAaABgAFwAWABYAFwAYABkAGwAfACIAIwAjACMAIgAfABwAGwAaABgAFwAWABYAFwAYABkAGwAfACIAIwAjACMAIgAfABwAGwAaABkAFwAXABcAGAAZABsAHgAfACEAIgAiACEAHwAdABsAGgAZABgAFgAWABYAFgAYABkAGwAdAB8AIQAiACMAIgAfAB0AGwAaABkAGAAXABYAFgAWABcAGAAZABsAHQAfACIAIwAjACIAHwAdABsAGgAZABgAFwAWABYAFgAXABgAGgAbAB0AHwAiACMAIwAiAB8AHQAbABoAGQAYABcAFgAWABYAFwAYABkAGwAdAB8AIgAjACMAIgAfAB0AGwAaABkAGAAXABYAFgAWABcAGAAZABsAHQAfACIAIwAjACIAHwAdABsAGgAZABgAFwAWABYAFgAXABgAGgAbAB0AHwAiACMAIwAiAB8AHQAbABoAGQAYABcAFgAWABYAFwAYABkAGwAdAB8AIgAjACMAIgAfAB0AGwAaABkAGAAXABYAFgAWABcAGAAZABsAHQAfACIAIwAjACIAHwAdABsAGgAZABgAFwAWABYAFgAXABgAGgAbAB0AHwAiACMAIwAiAB8AHQAbABoAGQAYABcAFgAWABYAFwAYABkAGwAdAB8AIgAjACMAIgAfAB0AGwAaABkAGAAXABYAFgAWABcAGAAZABsAHQAfACIAIwAjACIAHwAdABsAGgAZABgAFwAWABYAFgAXABgAGgAbAB0AHwAiACMAIwAiAB8AHQAbABoAGQAYABcAFgAWABYAFwAYABkAGwAdAB8AIgAjACMAIgAfAB0AGwAaABkAGAAXABYAFgAWABcAGAAZABsAHQAfACIAIwAjACIAHwAdABsAGgAZABgAFwAWABYAFgAXABgAGgAbAB0AHwAiACMAIwAiAB8AHQAbABoAGQAYABcAFgAWABYAFwAYABkAGwAdAB8AIgAjACMAIgAfAB0AGwAaABkAGAAXABYAFgAWABAGAAZABsAHQAfACIAIwAjACIAHwAdABsAGgAZABgAFwAWABYAFgAXABgAGgAbAB0AHwAiACMAIwAiAB8AHQAbABoAGQAYABcAFgAWABYAFwAYABkAGwAdAB8AIgAkACUAJgAnACgAKQAqACoAKwAsAC0ALgAuAC8AMgAzADUANwA4ADoAOwA8AD4APwBBAEMARQBHAEkASwBMAE0ATgBPAFEAUwBVAE8AUQBOAEv//P/9//3//f/9//3//f/9//3//f/9//3//f/9//3//f/8=" preload="auto"></audio>
+    <audio id="walk-sound" src="walk.mp3" preload="auto"></audio>
+    <audio id="vibration-sound" preload="auto"></audio>
+    <audio id="pop-effect-sound" src="pop.mp3" preload="auto"></audio>
+    <audio id="nature-sound" src="nature.mp3" preload="auto"></audio>
+    <audio id="machine-sound" src="machine.mp3" preload="auto"></audio>
+
+<script>
+    // 1. Access 토큰
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZWxlbmFraW0wMjE3IiwiYSI6ImNtZ3A5Y2c4YzFpY2kybHB5NmVmamhxeHQifQ.fmwmhsFFjZ8vM2YqulQtNA';
+
+    // 2. 초기 뷰 및 데이터
+    const initialCenter = [126.9680, 37.37947];
+    const initialZoom = 15;
+    const boundingBox = { minLng: 126.9580, maxLng: 126.9790, minLat: 37.3750, maxLat: 37.3820 };
+    const boxCenterX = (boundingBox.minLng + boundingBox.maxLng) / 2;
+    const boxCenterY = (boundingBox.minLat + boundingBox.maxLat) / 2;
+    let circleCoords = [boundingBox.minLng, boxCenterY];
+    let squareCoords = [boundingBox.maxLng, boxCenterY];
+    const initialCircleRadius_px = 45;
+    const initialSquareSize_deg = 0.0012;
+    
+    // 1번 요청: 이동 속도 0.0003
+    const moveStep = 0.0003;
+
+    let currentCircleRadius_px = initialCircleRadius_px;
+    let currentSquareSize_deg = initialSquareSize_deg;
+
+    // 1~13번 좌표
+    const iconData = {
+        1: { coords: [126.9587, 37.3757], text: '단지 앞' },
+        2: { coords: [126.960, 37.3760], text: '교회 앞' },
+        3: { coords: [126.9605, 37.3771], text: '다른 아파트 단지' },
+        4: { coords: [126.960, 37.3787], text: '아이스크림 상가' },
+        5: { coords: [126.9605, 37.3799], text: '빵집 앞' },
+        6: { coords: [126.963, 37.3808], text: '고가도로 시작' },
+        7: { coords: [126.965, 37.3816], text: '지하차도' },
+        8: { coords: [126.967, 37.3812], text: '학원가 사거리' },
+        9: { coords: [126.969, 37.3815], text: '자유공원 측면' },
+        10: { coords: [126.971, 37.381], text: '도매 시장 쪽 고가도로' },
+        11: { coords: [126.973, 37.380], text: '구름다리' },
+        12: { coords: [126.975, 37.380], text: '고가도로 상가' },
+        13: { coords: [126.978, 37.379], text: '학교 정문' },
+        14: { coords: [126.962, 37.3775], text: '' },
+        15: { coords: [126.968, 37.3780], text: '' },
+        16: { coords: [126.974, 37.3765], text: '' },
+        17: { coords: [126.970, 37.3755], text: '' }
+     };
+
+    // 진동 10단계 및 사운드 데이터
+    const popupData = {
+        1:  { level: 7, sound: '1-2.m4a' },
+        2:  { level: 3, sound: '1-2.m4a' },
+        3:  { level: 8, sound: '3.m4a' },
+        4:  { level: 8, sound: '4.mp3' },
+        5:  { level: 4, sound: '5.m4a' },
+        6:  { level: 10, sound: '6.mp3' },
+        7:  { level: 2, sound: '7.mp3' },
+        8:  { level: 9, sound: '8.mp3' },
+        9:  { level: 7, sound: '9.mp3' },
+        10: { level: 10, sound: '10.m4a' },
+        11: { level: 6, sound: '11-12.m4a' },
+        12: { level: 5, sound: '11-12.m4a' },
+        13: { level: 10, sound: '13.mp3' }
+    };
+
+
+    // 18번~64번 아이콘 데이터 동적 생성
+    const lngRange = boundingBox.maxLng - boundingBox.minLng;
+    const latRange = boundingBox.maxLat - boundingBox.minLat;
+    let allIconCoords = []; // 2번 요청: 모든 아이콘 좌표 저장용
+
+    for (let i = 1; i <= 17; i++) { // 1~17번 좌표 추가
+        if(iconData[i]) allIconCoords.push(iconData[i].coords);
+    }
+
+    for (let i = 5; i <= 51; i++) {
+        const key = i + 13; 
+        const randomLng = parseFloat((boundingBox.minLng + (Math.random() * lngRange)).toFixed(6));
+        const randomLat = parseFloat((boundingBox.minLat + (Math.random() * latRange)).toFixed(6));
+        iconData[key] = {
+            coords: [randomLng, randomLat],
+            text: ''
+        };
+        allIconCoords.push(iconData[key].coords); // 2번 요청: 동적 생성된 좌표 추가
+    }
+
+    // 3. 지도 생성
+    const map = new mapboxgl.Map({
+        container: 'map', style: 'mapbox://styles/elenakim0217/cmgzb8nq0008x01stgm7rcsxz', center: initialCenter, zoom: initialZoom
+    });
+
+    // 제어 변수
+    let manualControlActive = false;
+    let isInfoVisible = false; // "B"키 (정보/라인표시) 상태
+    let cameraInterval = null;
+    let shapeScaleInterval = null;
+    let isFooterToggledOn = false; 
+    let shapeTextInterval = null; 
+    let helpTextInterval = null;
+    
+    let farTimer = 0; 
+    let nearCooldown = false;
+    let farCooldown = false;
+
+    let currentVibrationInterval = null;
+    let currentVibrationTimeout = null;
+    let currentPlayingAudio = null;
+    let activeIconId = null;
+
+    // --- [수정] 3, 4번 요청: 사운드 타이머 변수 추가 ---
+    let machineSoundTimeout = null;
+    let natureSoundTimeout = null;
+    // --- [수정 완료] ---
+
+
+    // 메인 화면 텍스트 라벨 DOM 요소
+    const elMachine = document.createElement('div');
+    elMachine.className = 'text-label'; 
+    elMachine.textContent = '기계';
+    elMachine.style.display = 'none';
+
+    const elNature = document.createElement('div');
+    elNature.className = 'text-label'; 
+    elNature.textContent = '자연';
+    elNature.style.display = 'none';
+
+    const elHelp = document.createElement('div');
+    elHelp.className = 'text-label'; 
+    elHelp.textContent = 'c 또는 ㅊ을 눌러주세요!';
+    elHelp.style.display = 'none';
+
+    const elNear = document.createElement('div');
+    elNear.className = 'text-label';
+    elNear.textContent = '여기 근처야!';
+    elNear.style.display = 'none';
+
+    const elFar = document.createElement('div');
+    elFar.className = 'text-label';
+    elFar.textContent = '너무 멀리 있어!';
+    elFar.style.display = 'none';
+
+
+    let machineLabel, natureLabel, helpLabel, nearLabel, farLabel;
+
+    // DOM 요소 가져오기
+    const modalContainer = document.getElementById('modal-container');
+    const modalNumberText = document.getElementById('modal-number-text');
+    const modalImage = document.getElementById('modal-image');
+    const infoModalContainer = document.getElementById('info-modal-container');
+    const infoModalText = document.getElementById('info-modal-text');
+    const introModalContainer = document.getElementById('intro-modal-container'); 
+    const popSound = document.getElementById('pop-sound');
+    const footerContainer = document.getElementById('footer-container'); 
+    const walkSound = document.getElementById('walk-sound'); 
+    const vibrationSound = document.getElementById('vibration-sound');
+    const popEffectSound = document.getElementById('pop-effect-sound');
+    const natureSound = document.getElementById('nature-sound');
+    const machineSound = document.getElementById('machine-sound');
+
+
+    function updateFooterVisibility() {
+        const isIntroVisible = introModalContainer.style.display !== 'none';
+        const isModalVisible = modalContainer.style.display !== 'none';
+        const isInfoPopupVisible = infoModalContainer.style.display !== 'none';
+
+        if (isIntroVisible || isModalVisible || isInfoPopupVisible) {
+            footerContainer.style.display = 'none'; 
+        } else if (isFooterToggledOn) {
+            footerContainer.style.display = 'block'; 
+        } else {
+            footerContainer.style.display = 'none'; 
+        }
+    }
+    
+    function toggleFooter() {
+        isFooterToggledOn = !isFooterToggledOn;
+        updateFooterVisibility();
+    }
+
+    // `map.on('load')` (버그 수정된 버전)
+    map.on('load', () => {
+        const baseIconSize = 0.07;
+        
+        // 1~13번 아이콘 로드 (소스 먼저 추가)
+        for (let i = 1; i <= 13; i++) {
+            const key = i.toString();
+            const data = iconData[key];
+            if (!data) continue;
+
+            const baseSourceKey = `point-${key}`;
+            
+            map.addSource(baseSourceKey, { 
+                type: 'geojson', 
+                data: { 
+                    type: 'FeatureCollection', 
+                    features: [{ 
+                        type: 'Feature', 
+                        geometry: { type: 'Point', coordinates: data.coords }, 
+                        properties: { 'title': data.text } 
+                    }] 
+                } 
+            });
+
+            // Base
+            const baseIconKey = `icon-${key}`;
+            const baseLayerKey = `layer-${key}`;
+            const baseFileName = `${key.padStart(2, '0')}.png`;
+
+            map.loadImage(baseFileName, (error, image) => {
+                if (error) { console.error(`Base 이미지 로드 실패: ${baseFileName}`, error); return; };
+                if (map.hasImage(baseIconKey)) return;
+                map.addImage(baseIconKey, image);
+                map.addLayer({
+                    id: baseLayerKey, type: 'symbol', source: baseSourceKey,
+                    layout: {
+                        'icon-image': baseIconKey, 'icon-size': baseIconSize,
+                        'icon-allow-overlap': true, 'text-allow-overlap': true, 
+                        'text-field': ['get', 'title'], 'text-anchor': 'bottom', 'text-offset': [0, -1.5], 'text-size': 12, 
+                        'visibility': 'visible'
+                    },
+                    paint: { 'text-color': '#000000', 'text-halo-color': '#ffed4b', 'text-halo-width': 1, 'text-opacity': 0 }
+                });
+            });
+
+            // Nature
+            const natureIconKey = `icon-nature-${key}`;
+            const natureLayerKey = `layer-nature-${key}`;
+            const natureFileName = `nature-${key.padStart(2, '0')}.png`;
+
+            map.loadImage(natureFileName, (error, image) => {
+                if (error) { console.error(`Nature 이미지 로드 실패: ${natureFileName}`, error); return; };
+                if (map.hasImage(natureIconKey)) return;
+                map.addImage(natureIconKey, image);
+                map.addLayer({
+                    id: natureLayerKey, type: 'symbol', source: baseSourceKey,
+                    layout: {
+                        'icon-image': natureIconKey, 'icon-size': baseIconSize,
+                        'icon-allow-overlap': true, 'text-allow-overlap': true, 
+                        'visibility': 'none'
+                    },
+                    paint: {}
+                });
+            });
+
+            // Machine
+            const machineIconKey = `icon-machine-${key}`;
+            const machineLayerKey = `layer-machine-${key}`;
+            const machineFileName = `machine-${key.padStart(2, '0')}.png`;
+            
+            map.loadImage(machineFileName, (error, image) => {
+                if (error) { console.error(`Machine 이미지 로드 실패: ${machineFileName}`, error); return; };
+                if (map.hasImage(machineIconKey)) return;
+                map.addImage(machineIconKey, image);
+                map.addLayer({
+                    id: machineLayerKey, type: 'symbol', source: baseSourceKey,
+                    layout: {
+                        'icon-image': machineIconKey, 'icon-size': baseIconSize,
+                        'icon-allow-overlap': true, 'text-allow-overlap': true, 
+                        'visibility': 'none'
+                    },
+                    paint: {}
+                });
+            });
+        }
+        
+        // extra 아이콘 (14~64) 로드
+        for (let i = 14; i <= 64; i++) {
+            const key = i.toString();
+            const data = iconData[key];
+            if (!data) continue;
+
+            const iconKey = `icon-${key}`, sourceKey = `point-${key}`, layerKey = `layer-${key}`;
+            const fileName = `extra${(i - 13).toString().padStart(2, '0')}.png`;
+
+            map.loadImage(fileName, (error, image) => {
+                if (error) { console.error(`Extra 이미지 로드 실패: ${fileName}`, error); return; };
+                if (map.hasImage(iconKey)) return;
+                map.addImage(iconKey, image);
+                map.addSource(sourceKey, { type: 'geojson', data: { type: 'FeatureCollection', features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: data.coords }, properties: { 'title': data.text } }] } });
+                map.addLayer({
+                    id: layerKey, type: 'symbol', source: sourceKey,
+                    layout: {
+                        'icon-image': iconKey, 'icon-size': baseIconSize,
+                        'icon-allow-overlap': true, 'text-allow-overlap': true, 
+                        'visibility': 'visible'
+                    },
+                    paint: { 'text-opacity': 0 }
+                });
+            });
+        }
+        
+        // 4번 요청: 도형 투명도 60%
+        map.addSource('circle-point', { type: 'geojson', data: { type: 'Point', coordinates: circleCoords } });
+        map.addLayer({ 
+            id: 'circle-layer', type: 'circle', source: 'circle-point', 
+            paint: { 
+                'circle-radius': initialCircleRadius_px, 
+                'circle-color': 'rgba(255, 237, 75, 0.85)', 
+                'circle-opacity': 0.6, // 60%
+                'circle-stroke-width': 0 
+            } 
+        });
+        
+        map.addSource('square-source', { type: 'geojson', data: createSquarePolygon(squareCoords, initialSquareSize_deg) });
+        map.addLayer({ 
+            id: 'square-layer', type: 'fill', source: 'square-source', 
+            paint: { 
+                'fill-color': 'rgba(255, 237, 75, 0.85)', 
+                'fill-opacity': 0.6, // 60%
+                'fill-outline-color': 'transparent' 
+            } 
+        });
+
+
+        // 텍스트 라벨 마커 생성
+        machineLabel = new mapboxgl.Marker(elMachine).setLngLat(squareCoords).addTo(map);
+        natureLabel = new mapboxgl.Marker(elNature).setLngLat(circleCoords).addTo(map);
+        helpLabel = new mapboxgl.Marker(elHelp).setLngLat(map.getCenter()).addTo(map);
+        nearLabel = new mapboxgl.Marker(elNear).setLngLat(map.getCenter()).addTo(map);
+        farLabel = new mapboxgl.Marker(elFar).setLngLat(map.getCenter()).addTo(map);
+
+
+        // 페이지 로드 시 'nw2' 레이어 숨기기
+        try {
+            const lineLayerId = 'nw2';
+            map.once('idle', () => {
+                 if (map.getLayer(lineLayerId)) {
+                     map.setLayoutProperty(lineLayerId, 'visibility', 'none');
+                     console.log(`초기 상태 (idle 후): 라인 (${lineLayerId}) 숨김`);
+                 } else {
+                     console.warn(`초기 상태 설정 실패: 라인 레이어 ID '${lineLayerId}' 를 찾을 수 없습니다.`);
+                 }
+             });
+        } catch (error) {
+             console.error("초기 라인 숨김 오류:", error);
+        }
+    });
+
+    // --- 컨트롤 함수들 ---
+
+    function createSquarePolygon(center, size_deg) {
+        const [lng, lat] = center; const halfSizeLat = size_deg / 2; const halfSizeLng = halfSizeLat / Math.cos(lat * Math.PI / 180);
+        const coordinates = [[ [lng - halfSizeLng, lat - halfSizeLat], [lng - halfSizeLng, lat + halfSizeLat], [lng + halfSizeLng, lat + halfSizeLat], [lng + halfSizeLng, lat - halfSizeLat], [lng - halfSizeLng, lat - halfSizeLat] ]];
+        return { type: 'Feature', geometry: { type: 'Polygon', coordinates: coordinates } };
+    }
+    
+    // 2번 요청('B'키 로직) + 5번 요청('N'/'M'키 로직)
+    function setLayerGroup(visibleGroup) { 
+        const groups = ['base', 'nature', 'machine'];
+        
+        // 1~13번 아이콘 토글
+        groups.forEach(groupName => {
+            const visibility = (groupName === visibleGroup) ? 'visible' : 'none';
+            let prefix = (groupName === 'base') ? 'layer-' : `layer-${groupName}-`;
+
+            for (let i = 1; i <= 13; i++) {
+                const layerId = prefix + i;
+                if (map.getLayer(layerId)) {
+                    map.setLayoutProperty(layerId, 'visibility', visibility);
+                }
+                
+                if (groupName === 'base') {
+                    if (map.getLayer(layerId)) {
+                        map.setPaintProperty(layerId, 'text-opacity', (visibility === 'visible' && isInfoVisible) ? 1 : 0);
+                    }
+                }
+            }
+        });
+
+        // 14~64번(extra) 아이콘 토글
+        const extraVisibility = (visibleGroup === 'base') ? 'visible' : 'none';
+        for (let i = 14; i <= 64; i++) {
+            const layerId = 'layer-' + i;
+            if (map.getLayer(layerId)) {
+                // 2번 요청: B키가 켜져있으면(isInfoVisible=true) 'base'라도 숨김
+                if (isInfoVisible && extraVisibility === 'visible') {
+                    map.setLayoutProperty(layerId, 'visibility', 'none');
+                } else {
+                    map.setLayoutProperty(layerId, 'visibility', extraVisibility);
+                }
+            }
+        }
+    }
+
+    // 2번 요청('B'키 로직) + 7번 요청('B'키 extra 숨김)
+    function toggleInfoNames() { 
+        const newOpacity = isInfoVisible ? 0 : 1; 
+        const newLineVisibility = isInfoVisible ? 'none' : 'visible';
+        
+        // 텍스트/라인 토글
+        if (map.getLayoutProperty('layer-1', 'visibility') === 'visible') {
+            for (let i = 1; i <= 13; i++) {
+                const layerId = 'layer-' + i;
+                if (map.getLayer(layerId)) {
+                    try { map.setPaintProperty(layerId, 'text-opacity', newOpacity); } 
+                    catch (e) { console.error(`속성 변경 오류 (${layerId}):`, e); }
+                }
+            }
+        }
+        try {
+            const lineLayerId = 'nw2';
+            if (map.getLayer(lineLayerId)) {
+                 map.setLayoutProperty(lineLayerId, 'visibility', newLineVisibility);
+            } else { console.warn(`라인 레이어 ID '${lineLayerId}' 를 찾을 수 없습니다.`); }
+        } catch (error) { console.error("라인 가시성 변경 중 오류:", error); }
+        
+        // 2번/7번 요청: Extra 아이콘 토글
+        // (isInfoVisible가 true가 될 때(첫 클릭) -> 'none')
+        // (isInfoVisible가 false가 될 때(두번째 클릭) -> 'visible')
+        const newExtraVisibility = isInfoVisible ? 'none' : 'visible';
+        for (let i = 14; i <= 64; i++) {
+            const layerId = 'layer-' + i;
+            if (map.getLayer(layerId)) {
+                let finalVisibility = newExtraVisibility;
+                // Extra를 'visible'로 하려는 경우 (두번째 클릭)
+                if (finalVisibility === 'visible') {
+                    // 현재 'base'('O'키) 모드인지 확인
+                    const isBaseMode = map.getLayoutProperty('layer-1', 'visibility') === 'visible';
+                    if (!isBaseMode) {
+                        finalVisibility = 'none'; // Base 모드가 아니면 계속 숨김
+                    }
+                }
+                map.setLayoutProperty(layerId, 'visibility', finalVisibility);
+            }
+        }
+
+        isInfoVisible = !isInfoVisible; // 상태 반전
+    }
+
+
+    // --- [수정] 1번 요청: 카메라 이동 간격/속도 조절 ---
+    function startCameraModeInternal() {
+        if (cameraInterval) return;
+        console.log("카메라 자동 이동 시작");
+        cameraInterval = setInterval(autoMoveMapCamera, 3000); // 3초마다
+     }
+    function stopCameraModeInternal() {
+        if (cameraInterval) { clearInterval(cameraInterval); cameraInterval = null; console.log("카메라 자동 이동 정지"); }
+     }
+
+    function autoMoveMapCamera() {
+        const randomIndex = Math.floor(Math.random() * allIconCoords.length);
+        const randomCoords = allIconCoords[randomIndex];
+        const currentCenter = map.getCenter();
+        
+        const offset = 0.001;
+        const newLng = randomCoords[0] + (Math.random() - 0.5) * offset;
+        const newLat = randomCoords[1] + (Math.random() - 0.5) * offset;
+        const randomZoom = 14.5 + Math.random(); 
+        
+        if(helpLabel) helpLabel.setLngLat(currentCenter);
+        if(nearLabel) nearLabel.setLngLat(currentCenter);
+        if(farLabel) farLabel.setLngLat(currentCenter);
+
+        map.easeTo({ center: [newLng, newLat], zoom: randomZoom, duration: 2500 }); // 2.5초 동안 이동
+    }
+    // --- [수정 완료] ---
+
+
+    function showShapeLabels() {
+        if (!manualControlActive) return; 
+        elMachine.style.display = 'block';
+        elNature.style.display = 'block';
+        setTimeout(() => {
+            elMachine.style.display = 'none';
+            elNature.style.display = 'none';
+        }, 3000);
+    }
+    
+    function showHelpLabel() {
+        if (!manualControlActive) return; 
+        elHelp.textContent = 'c 또는 ㅊ을 눌러주세요!';
+        elHelp.style.display = 'block';
+        setTimeout(() => {
+            elHelp.style.display = 'none';
+        }, 3000);
+    }
+    
+    function showProximityLabels(isClose) {
+        if (!manualControlActive) return;
+
+        // "여기 근처야!"
+        if (isClose && !nearCooldown) {
+            farTimer = 0; 
+            elNear.style.display = 'block';
+            nearCooldown = true;
+            setTimeout(() => { elNear.style.display = 'none'; }, 1000); 
+            setTimeout(() => { nearCooldown = false; }, 8000); 
+        } 
+        // "너무 멀리 있어!"
+        else if (!isClose && !farCooldown) {
+            farTimer++; 
+            
+            let isNearExtras = false;
+            const circlePx = map.project(circleCoords);
+            const squarePx = map.project(squareCoords);
+            
+            // 2번/7번 요청: Extra 아이콘이 보이는지 확인
+            let isExtraVisible = false;
+            try {
+                if (map.getLayer('layer-14')) {
+                     isExtraVisible = map.getLayoutProperty('layer-14', 'visibility') === 'visible';
+                }
+            } catch(e) {}
+
+            if (isExtraVisible) {
+                for (let i = 14; i <= 64; i++) {
+                    if (iconData[i] && map.getLayer('layer-' + i)) {
+                        const iconPx = map.project(iconData[i].coords);
+                        const distCircle = Math.hypot(circlePx.x - iconPx.x, circlePx.y - iconPx.y);
+                        const distSquare = Math.hypot(squarePx.x - iconPx.x, squarePx.y - iconPx.y);
+                        if (distCircle < 150 || distSquare < 150) {
+                            isNearExtras = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (isNearExtras && farTimer >= 5) {
+                elFar.style.display = 'block';
+                farCooldown = true;
+                farTimer = 0; 
+                setTimeout(() => { elFar.style.display = 'none'; }, 1000); 
+                setTimeout(() => { farCooldown = false; }, 10000); 
+            }
+        }
+    }
+
+
+    // --- 진동 및 사운드 관련 함수 ---
+
+    // 10단계 진동 스케일
+    function getVibrationScale(level) {
+        let base = 1.0;
+        let range = 0.0;
+        
+        switch (level) {
+            case 1: range = 0.02; break;
+            case 2: range = 0.04; break;
+            case 3: range = 0.06; break;
+            case 4: range = 0.08; break;
+            case 5: range = 0.10; break; 
+            case 6: range = 0.15; break;
+            case 7: range = 0.20; break; 
+            case 8: range = 0.25; break;
+            case 9: range = 0.30; break; 
+            case 10: range = 0.35; break;
+            default: range = 0;
+        }
+        return base - (range / 2) + (Math.random() * range);
+    }
+
+    function startVibration(element, level, soundSrc) {
+        stopVibration(element); 
+
+        const vibrationInterval = 65; 
+
+        currentVibrationInterval = setInterval(() => {
+            const newScale = getVibrationScale(level);
+            element.style.transform = `scale(${newScale})`;
+        }, vibrationInterval);
+
+        // 사운드 재생
+        try {
+            if (vibrationSound) {
+                vibrationSound.src = soundSrc;
+                vibrationSound.currentTime = 0;
+                vibrationSound.play().catch(e => console.error("오디오 재생 실패:", e));
+                currentPlayingAudio = vibrationSound;
+            }
+        } catch (e) {
+            console.error("오디오 생성 또는 재생 오류:", e);
+        }
+
+        // 1번 요청: 15초 후 정지
+        currentVibrationTimeout = setTimeout(() => {
+            stopVibration(element);
+        }, 15000); // 15초
+    }
+
+    function stopVibration(element) {
+        if (currentVibrationInterval) {
+            clearInterval(currentVibrationInterval);
+            currentVibrationInterval = null;
+        }
+        if (currentVibrationTimeout) {
+            clearTimeout(currentVibrationTimeout);
+            currentVibrationTimeout = null;
+        }
+        if (element) {
+            element.style.transform = 'scale(1.0)';
+        }
+        
+        if (currentPlayingAudio) {
+            currentPlayingAudio.pause();
+            currentPlayingAudio.currentTime = 0;
+        }
+    }
+
+    // --- 팝업창 제어 함수 ---
+    function showModal(iconId) {
+        if (activeIconId === iconId) return;
+        hideModal(); 
+        
+        activeIconId = iconId;
+        const data = popupData[iconId];
+        
+        // 14~64번 아이콘 처리
+        if (!data) {
+            modalNumberText.textContent = iconId.toString().padStart(2, '0');
+            modalImage.style.display = 'none';
+            modalContainer.style.display = 'block';
+            popSound.currentTime = 0;
+            popSound.play();
+            updateFooterVisibility();
+            return;
+        }
+
+        // 1~13번 아이콘 처리
+        const numberString = iconId.toString().padStart(2, '0');
+        modalNumberText.textContent = numberString;
+        modalImage.src = `original-${numberString}.png`;
+        modalImage.style.display = 'block';
+        modalContainer.style.display = 'block';
+        startVibration(modalImage, data.level, data.sound);
+        updateFooterVisibility();
+    }
+
+    function hideModal() {
+        if (modalContainer.style.display === 'none') return;
+        modalContainer.style.display = 'none';
+        stopVibration(modalImage); 
+        modalImage.src = ""; 
+        modalNumberText.textContent = ""; 
+        activeIconId = null;
+        updateFooterVisibility();
+    }
+
+
+    // --- [수정] 5, 6, 8번 요청: 정보 팝업창(I) 레이아웃 및 텍스트 수정 ---
+    function showInfoModal() {
+        const content = `
+            <div class="info-modal-grid">
+                <div class="info-column">
+                    <img src="logo01.png" alt="Logo 01" class="logo">
+                    
+                    <h3 style="margin-top: 10px;">자연과 기계의 시각화</h3>
+                    <img src="intro02.png" alt="시각화 예시" style="margin-bottom: 15px; width: 50%;">
+                    
+                    <h3>소개</h3>
+                    <p>
+                        김채린은 평소 학교에서 집까지의 거리를 13가지의 구역으로 나누어 각 구역마다 <b>‘자연과 기계’가 어떤 흐름과 경계를 나타나는지</b> 게임을 차용해 비교하고자 한다.
+                    </p>
+                    
+                    <h3>과정</h3>
+                    <p>
+                        우선 걸어다니면서 13가지의 구역 속 사진, 영상, 소리를 수집한다. 그리고 13개 자연의 형태, 13개 기계의 형태를 시각적인 기호로 나눈다. 기호를 서로 교집합하여 13개의 구역에 다시 배치함으로써 <b>자연과 기계의 경계를 시각적으로 보여주게 된다.</b>
+                    </p>
+                    <p>
+                        또한 자연의 대표적인 형태 <b>'원'</b> 그리고 기계의 대표적인 형태 <b>'정사각형'</b>이 방향키에 맞춰 움직이게 된다. 만약 13가지 구역 중 한 구역 위에 서로 겹쳐지게 되면 <b>자연과 기계의 흐름을 청각적으로 보여주게 된다.</b>
+                    </p>
+                    
+                    <p class="copyright-text">
+                        ⓒ Chaerin Kim. All rights reserved. <br> 이 웹사이트의 권한 및 저작권은 '김채린'에게 있습니다. <br>  문의 내용은 e.chaerinkim@gmail.com으로 보내주세요.
+                    </p>
+                </div>
+
+                <div class="info-column">
+                    <h3 style="margin-top: 10px;">조작 방법</h3>
+                    <img src="intro_main.png" alt="게임 방법">
+                    
+                    </div>
+            </div>
+        `;
+        
+        infoModalText.innerHTML = content;
+        infoModalContainer.style.display = 'block';
+        updateFooterVisibility();
+    }
+    // --- [수정 완료] ---
+
+
+    function hideInfoModal() {
+        infoModalContainer.style.display = 'none';
+        updateFooterVisibility();
+    }
+    modalContainer.onclick = function(event) { if (event.target == modalContainer) hideModal(); } 
+    infoModalContainer.onclick = function(event) { if (event.target == infoModalContainer) hideInfoModal(); } 
+
+
+    // --- 게임 로직 및 제어 함수 ---
+
+    function moveObject(type, direction) {
+        let currentCoords; if (type === 'circle') { currentCoords = circleCoords; } else { currentCoords = squareCoords; }
+        let dx = 0, dy = 0; 
+        switch (direction) { 
+            case 'up': dy = moveStep; break; 
+            case 'down': dy = -moveStep; break; 
+            case 'left': dx = -moveStep; break; 
+            case 'right': dx = moveStep; break; 
+        }
+        let newLng = currentCoords[0] + dx, newLat = currentCoords[1] + dy;
+        newLng = Math.max(boundingBox.minLng, Math.min(boundingBox.maxLng, newLng)); newLat = Math.max(boundingBox.minLat, Math.min(boundingBox.maxLat, newLat));
+        if (type === 'circle') { 
+            circleCoords = [newLng, newLat]; 
+        } else { 
+            squareCoords = [newLng, newLat]; 
+        }
+        
+        if (type === 'circle') { 
+            map.getSource('circle-point').setData({ type: 'Point', coordinates: circleCoords }); 
+            if(natureLabel) natureLabel.setLngLat(circleCoords);
+        }
+        else { 
+            const newPolygon = createSquarePolygon(squareCoords, currentSquareSize_deg); 
+            map.getSource('square-source').setData(newPolygon); 
+            if(machineLabel) machineLabel.setLngLat(squareCoords);
+        }
+        playWalkSound();
+     }
+
+    function gameLoop() {
+        if (!manualControlActive) return;
+        
+        let isClose = false;
+        let overlapFound = false;
+        let closestIconId = null;
+
+        const circlePx = map.project(circleCoords);
+        const squarePx = map.project(squareCoords);
+
+        // 자동 크기 조절
+        const randomScaleCircle = 1 + (Math.random() * 2); 
+        currentCircleRadius_px = initialCircleRadius_px * randomScaleCircle; 
+        map.setPaintProperty('circle-layer', 'circle-radius', currentCircleRadius_px);
+        
+        const randomScaleSquare = 1 + (Math.random() * 2); 
+        currentSquareSize_deg = initialSquareSize_deg * randomScaleSquare; 
+        const newPolygon = createSquarePolygon(squareCoords, currentSquareSize_deg); 
+        map.getSource('square-source').setData(newPolygon);
+
+        // 도형 간 충돌 확인
+        const squareEdgeLngLat = [ squareCoords[0] + (currentSquareSize_deg / 2 / Math.cos(squareCoords[1] * Math.PI / 180)), squareCoords[1] ];
+        const squareEdge_px = map.project(squareEdgeLngLat); 
+        const squareRadius_px = Math.abs(squareEdge_px.x - squarePx.x);
+        const distance_px = Math.hypot(circlePx.x - squarePx.x, circlePx.y - squarePx.y);
+        const shapesCollided = distance_px < (currentCircleRadius_px + squareRadius_px);
+
+        const hitRadius = 15.5;
+
+        // 1~13번 아이콘 체크
+        for (let i = 1; i <= 13; i++) {
+            const key = i.toString();
+            if (!iconData[key] || !map.getLayer('layer-' + key)) continue; 
+
+            let isVisible = false;
+            try {
+                const isBaseVisible = map.getLayoutProperty('layer-' + key, 'visibility') === 'visible';
+                const isNatureVisible = map.getLayer('layer-nature-' + key) && map.getLayoutProperty('layer-nature-' + key, 'visibility') === 'visible';
+                const isMachineVisible = map.getLayer('layer-machine-' + key) && map.getLayoutProperty('layer-machine-' + key, 'visibility') === 'visible';
+                isVisible = isBaseVisible || isNatureVisible || isMachineVisible;
+            } catch(e) {}
+
+            if (isVisible) {
+                const iconPx = map.project(iconData[key].coords);
+                const distCircle = Math.hypot(circlePx.x - iconPx.x, circlePx.y - iconPx.y);
+                const distSquare = Math.hypot(squarePx.x - iconPx.x, squarePx.y - iconPx.y);
+
+                if (distCircle < 150 || distSquare < 150) { isClose = true; }
+                
+                if (shapesCollided) {
+                    const distance = Math.hypot(circlePx.x - iconPx.x, circlePx.y - iconPx.y);
+                    if (distance < hitRadius) {
+                        overlapFound = true;
+                        closestIconId = i;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // 14~64번 아이콘 체크
+        if (!overlapFound) {
+            let isExtraVisible = false;
+            try {
+                 if (map.getLayer('layer-14')) {
+                    isExtraVisible = map.getLayoutProperty('layer-14', 'visibility') === 'visible';
+                 }
+            } catch(e) {}
+
+            if (isExtraVisible) { 
+                for (let i = 14; i <= 64; i++) {
+                     const key = i.toString();
+                     if (!iconData[key] || !map.getLayer('layer-' + key)) continue;
+
+                     const iconPx = map.project(iconData[key].coords);
+                     if (shapesCollided) {
+                        const distance = Math.hypot(circlePx.x - iconPx.x, circlePx.y - iconPx.y);
+                        if (distance < hitRadius) {
+                            overlapFound = true;
+                            closestIconId = i;
+                            break; 
+                        }
+                     }
+                }
+            }
+        }
+
+        showProximityLabels(isClose);
+
+        if (overlapFound && closestIconId) {
+            stopAll();
+            console.log(`충돌 감지! [아이콘 ${closestIconId}번] 팝업 표시`);
+            showModal(closestIconId);
+        }
+    }
+
+
+    function playWalkSound() {
+        if (!walkSound || !manualControlActive) return; 
+        walkSound.load();
+        walkSound.currentTime = 0;
+        walkSound.play().catch(e => {/* 무시 */});
+    }
+
+    // 9번 요청: pop.mp3 재생 헬퍼 함수
+    function playPopSound() {
+        if (!popEffectSound) return;
+        try {
+            popEffectSound.currentTime = 0;
+            popEffectSound.play().catch(e => {});
+        } catch (e) {}
+    }
+
+    // --- [수정] 1, 3, 4번 요청: N/M 사운드 중지 헬퍼 함수 ---
+    function stopThemeSounds() {
+        if (natureSound) {
+            natureSound.pause();
+            natureSound.currentTime = 0;
+        }
+        if (natureSoundTimeout) {
+            clearTimeout(natureSoundTimeout);
+            natureSoundTimeout = null;
+        }
+        if (machineSound) {
+            machineSound.pause();
+            machineSound.currentTime = 0;
+        }
+        if (machineSoundTimeout) {
+            clearTimeout(machineSoundTimeout);
+            machineSoundTimeout = null;
+        }
+    }
+    // --- [수정 완료] ---
+
+
+    function stopAll() {
+        if (manualControlActive) { console.log("정지 (Spacebar 또는 충돌)"); }
+        else { console.log("이미 정지 상태"); return; }
+        manualControlActive = false;
+        
+        stopCameraModeInternal();
+        
+        if (shapeScaleInterval) {
+            clearInterval(shapeScaleInterval);
+            shapeScaleInterval = null;
+            console.log("도형 크기/근접체크 변경 정지");
+        }
+        if (shapeTextInterval) {
+            clearInterval(shapeTextInterval);
+            shapeTextInterval = null;
+        }
+        if (helpTextInterval) {
+            clearInterval(helpTextInterval);
+            helpTextInterval = null;
+        }
+        elMachine.style.display = 'none';
+        elNature.style.display = 'none';
+        elHelp.style.display = 'none';
+        elNear.style.display = 'none'; 
+        elFar.style.display = 'none'; 
+
+        farTimer = 0; 
+        nearCooldown = false;
+        farCooldown = false;
+        if (walkSound) walkSound.pause();
+        
+        // [수정] 3, 4번: 게임 정지 시 N/M 사운드도 중지
+        stopThemeSounds();
+     }
+
+    function startGameplay() {
+        if (manualControlActive) return; 
+        
+        hideModal(); 
+        hideInfoModal(); 
+        
+        console.log("수동 조작 활성화 & 자동 크기/카메라 시작");
+        manualControlActive = true;
+        
+        if (!shapeScaleInterval) { 
+            shapeScaleInterval = setInterval(gameLoop, 1000); 
+        }
+        startCameraModeInternal();
+
+        if (!shapeTextInterval) { 
+            showShapeLabels(); 
+            shapeTextInterval = setInterval(showShapeLabels, 10000); 
+        }
+        if (!helpTextInterval) {
+            setTimeout(() => {
+                showHelpLabel();
+                helpTextInterval = setInterval(showHelpLabel, 13000);
+            }, 5000);
+        }
+
+        if (!isFooterToggledOn) { 
+            isFooterToggledOn = true;
+            updateFooterVisibility();
+            setTimeout(() => {
+                isFooterToggledOn = false;
+                updateFooterVisibility();
+            }, 5000);
+        }
+    }
+
+    function resetView() {
+        stopAll(); // stopAll이 stopThemeSounds를 호출함
+        hideModal();
+        hideInfoModal();
+        
+        map.flyTo({ center: initialCenter, zoom: initialZoom, speed: 0.8 });
+        
+        circleCoords = [boundingBox.minLng, boxCenterY]; 
+        currentCircleRadius_px = initialCircleRadius_px; 
+        map.getSource('circle-point').setData({ type: 'Point', coordinates: circleCoords }); 
+        map.setPaintProperty('circle-layer', 'circle-radius', currentCircleRadius_px);
+        
+        squareCoords = [boundingBox.maxLng, boxCenterY]; 
+        currentSquareSize_deg = initialSquareSize_deg; 
+        const resetPolygon = createSquarePolygon(squareCoords, currentSquareSize_deg); 
+        map.getSource('square-source').setData(resetPolygon);
+        
+        if(natureLabel) natureLabel.setLngLat(circleCoords);
+        if(machineLabel) machineLabel.setLngLat(squareCoords);
+        if(helpLabel) helpLabel.setLngLat(map.getCenter());
+        if(nearLabel) nearLabel.setLngLat(map.getCenter());
+        if(farLabel) farLabel.setLngLat(map.getCenter());
+        
+        farTimer = 0; 
+        
+        // 'B'키 상태(isInfoVisible) 리셋
+        if (isInfoVisible) {
+             try {
+                 const lineLayerId = 'nw2';
+                 if (map.getLayer(lineLayerId)) { map.setLayoutProperty(lineLayerId, 'visibility', 'none'); }
+                 for (let i = 1; i <= 13; i++) {
+                    const layerId = 'layer-' + i;
+                    if (map.getLayer(layerId)) {
+                        map.setPaintProperty(layerId, 'text-opacity', 0);
+                    }
+                 }
+             } catch(e){ console.error("ResetView에서 라인/텍스트 숨김 오류:", e); }
+             isInfoVisible = false; // B키 상태 리셋
+        }
+        
+        // 'base' 모드로 리셋 (extra 아이콘 포함)
+        setLayerGroup('base');
+        
+        updateFooterVisibility();
+    }
+
+    function startOrRestartControl() {
+        // 3, 4번: 스페이스바 누르면 N/M 사운드 중지
+        stopThemeSounds();
+        // 9번: 스페이스바 pop.mp3 재생
+        playPopSound(); 
+
+        if (modalContainer.style.display === 'block') {
+            resetView();
+            return;
+        }
+        if (infoModalContainer.style.display === 'block') {
+            return; 
+        }
+
+        if (introModalContainer.style.display !== 'none') {
+            introModalContainer.style.display = 'none'; 
+            startGameplay(); 
+        } 
+        else {
+            if (manualControlActive) {
+                stopAll();
+            } else {
+                startGameplay(); 
+            }
+        }
+    }
+
+
+    /**
+     * 키보드 이벤트 리스너 (3, 4번 요청: 사운드 중지 로직 추가)
+     */
+    window.addEventListener('keydown', (e) => {
+        
+        // --- 1. 항상 허용되는 키 (팝업 토글) ---
+        if (e.key === 'i' || e.key === 'I' || e.key === 'ㅑ') {
+            e.preventDefault();
+            stopThemeSounds(); // 3, 4번
+            playPopSound(); // 9번
+            
+            if (infoModalContainer.style.display === 'block') {
+                hideInfoModal();
+            } else {
+                if (modalContainer.style.display !== 'block') {
+                    showInfoModal();
+                }
+            }
+            return; 
+        }
+
+        if (e.key === 'x' || e.key === 'X' || e.key === 'ㅌ' || e.key === 'ㅋ' || e.key === 'Escape') {
+             e.preventDefault();
+             stopThemeSounds(); // 3, 4번
+             if (modalContainer.style.display === 'block') {
+                 hideModal();
+                 return;
+             }
+             if (infoModalContainer.style.display === 'block') {
+                 hideInfoModal();
+                 return;
+             }
+        }
+
+        if (e.key === ' ' || e.key === 'Spacebar') {
+            e.preventDefault();
+            // 3, 4, 9번: 사운드 중지/재생은 startOrRestartControl 함수 내부로 이동
+            startOrRestartControl(); 
+            return; 
+        }
+
+        // --- 2. 인트로 팝업이 켜져 있으면, 나머지 키는 모두 무시 ---
+        if (introModalContainer.style.display !== 'none') {
+            return; 
+        }
+
+        // --- 3. '메인 화면'에서만 동작하는 키 ---
+        
+        // 'C' 또는 'ㅊ' 키 (푸터 토글)
+        if (e.key === 'c' || e.key === 'C' || e.key === 'ㅊ') {
+            e.preventDefault();
+            stopThemeSounds(); // 3, 4번
+            playPopSound(); // 9번
+            toggleFooter();
+            return;
+        }
+
+        // 'V' 또는 'ㅍ' 키 (초기 뷰)
+        if (e.key === 'v' || e.key === 'V' || e.key === 'ㅍ') {
+            e.preventDefault();
+            // 3, 4번: resetView가 stopAll을 호출하므로 사운드 자동 중지
+            resetView();
+            return;
+        }
+        
+        // 'O' 또는 'ㅐ' 키 (Base 레이어)
+        if (e.key === 'o' || e.key === 'O' || e.key === 'ㅐ') {
+            e.preventDefault();
+            stopThemeSounds(); // 3, 4번
+            setLayerGroup('base');
+            return;
+        }
+
+        // 'B' 또는 'ㅠ' 키 (정보 토글)
+        if (e.key === 'b' || e.key === 'B' || e.key === 'ㅠ') {
+            e.preventDefault();
+            stopThemeSounds(); // 3, 4번
+            playPopSound(); // 9번
+            toggleInfoNames();
+            return;
+        }
+        
+        // 'N' 또는 'ㅜ' 키 (Nature 레이어)
+        if (e.key === 'n' || e.key === 'N' || e.key === 'ㅜ') {
+            e.preventDefault();
+            stopThemeSounds(); // 3, 4번: 다른 테마(M) 중지
+            if (natureSound) { 
+                natureSound.currentTime = 0; 
+                natureSound.play().catch(e=>{}); 
+                // [수정] 3번: 10초 타이머
+                if (natureSoundTimeout) clearTimeout(natureSoundTimeout);
+                natureSoundTimeout = setTimeout(() => {
+                    natureSound.pause();
+                    natureSound.currentTime = 0;
+                }, 10000);
+            }
+            setLayerGroup('nature');
+            return;
+        }
+        
+        // 'M' 또는 'ㅡ' 키 (Machine 레이어)
+        if (e.key === 'm' || e.key === 'M' || e.key === 'ㅡ') {
+            e.preventDefault();
+            stopThemeSounds(); // 3, 4번: 다른 테마(N) 중지
+            if (machineSound) { 
+                machineSound.currentTime = 0; 
+                machineSound.play().catch(e=>{}); 
+                // [수정] 4번: 10초 타이머
+                if (machineSoundTimeout) clearTimeout(machineSoundTimeout);
+                machineSoundTimeout = setTimeout(() => {
+                    machineSound.pause();
+                    machineSound.currentTime = 0;
+                }, 10000);
+            }
+            setLayerGroup('machine');
+            return;
+        }
+        
+        
+        // --- 이동 키 처리 ---
+        if (!manualControlActive) return; 
+
+        let moved = false, targetType = null, direction = null;
+        switch (e.key) {
+            case 'w': case 'W': case 'ㅈ': targetType = 'circle'; direction = 'up'; moved = true; break;
+            case 's': case 'S': case 'ㄴ': targetType = 'circle'; direction = 'down'; moved = true; break;
+            case 'a': case 'A': case 'ㅁ': targetType = 'circle'; direction = 'left'; moved = true; break;
+            case 'd': case 'D': case 'ㅇ': targetType = 'circle'; direction = 'right'; moved = true; break;
+            case 'ArrowUp': targetType = 'square'; direction = 'up'; moved = true; break;
+            case 'ArrowDown': targetType = 'square'; direction = 'down'; moved = true; break;
+            case 'ArrowLeft': targetType = 'square'; direction = 'left'; moved = true; break;
+            case 'ArrowRight': targetType = 'square'; direction = 'right'; moved = true; break;
+        }
+
+        if (moved) {
+            e.preventDefault();
+            stopThemeSounds(); // 3, 4번: 이동 시 테마 사운드 중지
+            moveObject(targetType, direction);
+        }
+    });
+
+</script>
+
+</body>
+</html>
