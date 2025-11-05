@@ -10,12 +10,16 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Moirai+One&display=swap" rel="stylesheet">
     
     <style>
+        /* --- 9번 요청: Wanted Sans 폰트 임포트 --- */
+        @import url('https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.1/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css');
+
+        /* 9번 요청: body에 Wanted Sans 600 적용 */
         body {
             width: 100vw; height: 100vh; margin: 0; padding: 0; overflow: hidden; background-color: black;
-            font-family: 'Moirai One', system-ui; 
+            font-family: 'Wanted Sans', system-ui; 
+            font-weight: 400; 
         }
         #map { width: 100%; height: 100%; }
         .mapboxgl-ctrl-logo, .mapboxgl-ctrl-attrib { display: none !important; }
@@ -23,7 +27,7 @@
         #header {
             position: fixed; top: 0; left: 0; width: 100%;
             background-color: white; 
-            padding: 55px 0 20px; 
+            padding: 40px 0 10px; 
             z-index: 10; box-sizing: border-box;
             text-align: center; 
         }
@@ -55,17 +59,26 @@
             transform: none; 
         }
         
-        #modal-container { display: none; position: fixed; z-index: 20; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
+        /* 7번 요청: 팝업창 정중앙 정렬 */
+        #modal-container { 
+            display: none; 
+            position: fixed; 
+            z-index: 20; 
+            left: 0; top: 0; width: 100%; height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.6);
+            align-items: center;
+            justify-content: center;
+        }
         
-        /* --- [수정] 6번 요청: 팝업창 크기 1.5배 (400px -> 600px) --- */
+        /* 6번 요청: 팝업창 크기 1.5배 */
         #modal-content { 
             background-color: #ffffff;
             color: black; 
-            margin: 15% auto; /* [수정] 위쪽 여백 조절 */
             padding: 30px; 
             border: 1px solid #000;
-            width: 80%; /* [수정] 60% -> 80% */
-            max-width: 600px; /* [수정] 400px -> 600px */
+            width: 80%; 
+            max-width: 600px; 
             aspect-ratio: 1 / 1; 
             position: relative;
             box-sizing: border-box; 
@@ -73,8 +86,6 @@
             align-items: center;
             justify-content: center;
         }
-        /* --- [수정 완료] --- */
-
 
         #modal-number-text {
             position: absolute;
@@ -82,12 +93,11 @@
             left: 16px;
             font-size: 16px;
             color: black;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            font-weight: bold;
+            font-family: 'Wanted Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            font-weight: 600;
             z-index: 2;
         }
 
-        /* 6번 요청: 팝업창이 커짐에 따라 이미지도 자동으로 커짐 (CSS 수정 불필요) */
         #modal-image {
             max-width: 90%;
             max-height: 90%;
@@ -108,6 +118,7 @@
             background-color: rgba(0,0,0,0.6); 
         }
         
+        /* 8번 요청: 팝업 디자인 수정 */
         #info-modal-content { 
             background-color: #ffffff;
             color: black; 
@@ -116,10 +127,11 @@
             border: 1px solid #000;
             width: 90%; 
             max-width: 1300px; 
-            max-height: 1200px;
+            max-height: 90vh; 
+            overflow-y: auto; 
             position: relative; 
             box-sizing: border-box; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            font-family: 'Wanted Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
         }
         
         .info-modal-grid {
@@ -129,19 +141,21 @@
             text-align: left; 
             align-items: start;
         }
-        .info-column .logo {
+        .info-modal-header-logo {
             width: 200px; 
             height: auto;
             margin-bottom: 20px;
             border: none;
         }
+        /* 8번: h3와 p 폰트 크기 조절 */
         .info-column h3 {
-            font-size: 1.2em;
-            font-weight: bold;
+            font-size: 14px; 
+            font-weight: 600; 
             margin-top: 20px;
             margin-bottom: 5px;
         }
         .info-column p {
+            font-size: 14px; 
             margin: 0 0 15px 0;
             line-height: 1.6;
         }
@@ -155,7 +169,19 @@
             height: auto;
             border: none;
         }
-
+        /* 8번: 13개 이미지 그리드 */
+        .image-grid-13 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .image-grid-13 img {
+            width: 100%;
+            height: auto;
+            border: none;
+            box-sizing: border-box;
+        }
 
          #intro-modal-container {
             display: flex; 
@@ -179,6 +205,13 @@
             width: 100%; 
             height: 100%; 
         }
+
+        /* 10번 요청: 인트로 로고 진동 애니메이션 */
+        @keyframes intro-vibrate {
+            0%, 50%, 100% { transform: translate(-50%, -50%) scale(1.0); }
+            25% { transform: translate(-50%, -50%) scale(1.05); }
+            75% { transform: translate(-50%, -50%) scale(1.05); }
+        }
         #intro-logo {
             width: 750px; 
             max-width: 90%; 
@@ -189,7 +222,9 @@
             transform: translate(-50%, -50%); 
             z-index: 3; 
             transition: opacity 0.5s ease;
+            animation: intro-vibrate 2s infinite ease-in-out;
         }
+
          #intro-subtitle {
              font-size: 16px;
              position: absolute; 
@@ -198,13 +233,13 @@
              transform: translateX(-50%);
              width: 90%; 
              z-index: 2; 
-             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+             font-family: 'Wanted Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
              line-height: 1.6; 
              transition: opacity 0.5s ease;
          }
         
         .text-label {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Wanted Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             font-size: 12px; 
             color: black;
             background-color: rgba(255, 255, 255, 1);
@@ -219,6 +254,7 @@
         .mapboxgl-marker .text-label {
              transform: translateY(-120%); 
         }
+
     </style>
 </head>
 
@@ -233,7 +269,7 @@
         <img id="footer-logo" src="footer.png" alt="Footer">
     </div>
 
-    <div id="modal-container">
+    <div id="modal-container" style="display: none;">
         <div id="modal-content">
             <span id="modal-number-text"></span> 
             <img id="modal-image" src="" alt="Popup Image" />
@@ -283,8 +319,9 @@
     const initialCircleRadius_px = 45;
     const initialSquareSize_deg = 0.0012;
     
-    // 1번 요청: 이동 속도 0.0003
-    const moveStep = 0.0003;
+    // --- [수정] 1번 요청: 이동 속도 1.5배 (0.0003 * 1.5) ---
+    const moveStep = 0.00045;
+    // --- [수정 완료] ---
 
     let currentCircleRadius_px = initialCircleRadius_px;
     let currentSquareSize_deg = initialSquareSize_deg;
@@ -328,16 +365,16 @@
     };
 
 
-    // 18번~64번 아이콘 데이터 동적 생성
+    // 1, 5번 요청: extra-52.png까지 생성
     const lngRange = boundingBox.maxLng - boundingBox.minLng;
     const latRange = boundingBox.maxLat - boundingBox.minLat;
-    let allIconCoords = []; // 2번 요청: 모든 아이콘 좌표 저장용
+    let allIconCoords = []; // 1, 5번 요청: 모든 아이콘 좌표 저장용
 
-    for (let i = 1; i <= 17; i++) { // 1~17번 좌표 추가
+    for (let i = 1; i <= 17; i++) {
         if(iconData[i]) allIconCoords.push(iconData[i].coords);
     }
 
-    for (let i = 5; i <= 51; i++) {
+    for (let i = 5; i <= 52; i++) {
         const key = i + 13; 
         const randomLng = parseFloat((boundingBox.minLng + (Math.random() * lngRange)).toFixed(6));
         const randomLat = parseFloat((boundingBox.minLat + (Math.random() * latRange)).toFixed(6));
@@ -345,8 +382,9 @@
             coords: [randomLng, randomLat],
             text: ''
         };
-        allIconCoords.push(iconData[key].coords); // 2번 요청: 동적 생성된 좌표 추가
+        allIconCoords.push(iconData[key].coords); 
     }
+    const totalIcons = 13 + 52; // 65개 (1~13 + 14~65)
 
     // 3. 지도 생성
     const map = new mapboxgl.Map({
@@ -360,7 +398,7 @@
     let shapeScaleInterval = null;
     let isFooterToggledOn = false; 
     let shapeTextInterval = null; 
-    let helpTextInterval = null;
+    let helpTextInterval = null; // C키 텍스트(elHelp) 타이머
     
     let farTimer = 0; 
     let nearCooldown = false;
@@ -371,13 +409,27 @@
     let currentPlayingAudio = null;
     let activeIconId = null;
 
-    // --- [수정] 3, 4번 요청: 사운드 타이머 변수 추가 ---
     let machineSoundTimeout = null;
     let natureSoundTimeout = null;
-    // --- [수정 완료] ---
+
+    // 6번 요청: 수동 이동 후 자동카메라 재시작 타이머
+    let movementInactivityTimer = null;
+    
+    // 1번 요청: 신규 라벨 인터벌 타이머
+    let labelHintInterval1 = null;
+    let labelHintInterval2 = null;
+    let labelHintInterval3 = null;
+    
+    // 1-2(순차) 요청을 위한 변수
+    let labelHintSequenceInterval = null;
+    let labelSequenceTimer1 = null;
+    let labelSequenceTimer2 = null;
+    let labelSequenceTimer3 = null;
+    let labelSequenceTimer4 = null;
+    let labelSequenceTimer5 = null;
 
 
-    // 메인 화면 텍스트 라벨 DOM 요소
+    // 메인 화면 텍스트 라벨 DOM 요소 (기존 5개)
     const elMachine = document.createElement('div');
     elMachine.className = 'text-label'; 
     elMachine.textContent = '기계';
@@ -390,21 +442,56 @@
 
     const elHelp = document.createElement('div');
     elHelp.className = 'text-label'; 
-    elHelp.textContent = 'c 또는 ㅊ을 눌러주세요!';
+    elHelp.textContent = '조작 방법은 C 또는 ㅊ을 눌러주세요!';
     elHelp.style.display = 'none';
 
     const elNear = document.createElement('div');
     elNear.className = 'text-label';
-    elNear.textContent = '여기 근처야!';
+    elNear.textContent = '여기 근처예요!';
     elNear.style.display = 'none';
 
     const elFar = document.createElement('div');
     elFar.className = 'text-label';
-    elFar.textContent = '너무 멀리 있어!';
+    elFar.textContent = '너무 멀리 있어요!';
     elFar.style.display = 'none';
+
+    // 1번 요청: 신규 라벨 DOM 3개
+    const elHint1 = document.createElement('div');
+    elHint1.className = 'text-label'; 
+    elHint1.textContent = '팝업창을 끄고 싶다면 같은 조작키를 다시 한번 눌러주세요!';
+    elHint1.style.display = 'none';
+
+    const elHint2 = document.createElement('div');
+    elHint2.className = 'text-label'; 
+    elHint2.textContent = '소리도 나와요!';
+    elHint2.style.display = 'none';
+
+    const elHint3 = document.createElement('div');
+    elHint3.className = 'text-label'; 
+    elHint3.textContent = '발자국 소리 지나간다!';
+    elHint3.style.display = 'none';
+    
+    // 1-3단계: 새 라벨 3개 추가
+    const elHint4 = document.createElement('div');
+    elHint4.className = 'text-label'; 
+    elHint4.textContent = '터벅 터벅,';
+    elHint4.style.display = 'none';
+
+    const elHint5 = document.createElement('div');
+    elHint5.className = 'text-label'; 
+    elHint5.textContent = '13가지 구역에서 한번 겹쳐보세요!';
+    elHint5.style.display = 'none';
+
+    const elHint6 = document.createElement('div');
+    elHint6.className = 'text-label'; 
+    elHint6.textContent = '겹쳐지면 사진과 소리가 나타날 거예요!';
+    elHint6.style.display = 'none';
 
 
     let machineLabel, natureLabel, helpLabel, nearLabel, farLabel;
+    let hintLabel1, hintLabel2, hintLabel3;
+    let hintLabel4, hintLabel5, hintLabel6; // 1-3단계: 새 마커 변수
+
 
     // DOM 요소 가져오기
     const modalContainer = document.getElementById('modal-container');
@@ -416,11 +503,12 @@
     const popSound = document.getElementById('pop-sound');
     const footerContainer = document.getElementById('footer-container'); 
     const walkSound = document.getElementById('walk-sound'); 
+    walkSound.playbackRate = 1.3; /* <--- 이 줄을 추가하세요 */
     const vibrationSound = document.getElementById('vibration-sound');
     const popEffectSound = document.getElementById('pop-effect-sound');
     const natureSound = document.getElementById('nature-sound');
     const machineSound = document.getElementById('machine-sound');
-
+    
 
     function updateFooterVisibility() {
         const isIntroVisible = introModalContainer.style.display !== 'none';
@@ -436,6 +524,7 @@
         }
     }
     
+    // 'C' 키를 위한 푸터 토글 함수 복원
     function toggleFooter() {
         isFooterToggledOn = !isFooterToggledOn;
         updateFooterVisibility();
@@ -527,8 +616,8 @@
             });
         }
         
-        // extra 아이콘 (14~64) 로드
-        for (let i = 14; i <= 64; i++) {
+        // extra 아이콘 (14~65) 로드
+        for (let i = 14; i <= totalIcons; i++) {
             const key = i.toString();
             const data = iconData[key];
             if (!data) continue;
@@ -582,6 +671,16 @@
         helpLabel = new mapboxgl.Marker(elHelp).setLngLat(map.getCenter()).addTo(map);
         nearLabel = new mapboxgl.Marker(elNear).setLngLat(map.getCenter()).addTo(map);
         farLabel = new mapboxgl.Marker(elFar).setLngLat(map.getCenter()).addTo(map);
+        
+        // 1번 요청: 신규 라벨 마커 3개
+        hintLabel1 = new mapboxgl.Marker(elHint1).setLngLat(map.getCenter()).addTo(map);
+        hintLabel2 = new mapboxgl.Marker(elHint2).setLngLat(map.getCenter()).addTo(map);
+        hintLabel3 = new mapboxgl.Marker(elHint3).setLngLat(map.getCenter()).addTo(map);
+
+        // 1-3단계: 새 마커 3개 추가
+        hintLabel4 = new mapboxgl.Marker(elHint4).setLngLat(map.getCenter()).addTo(map);
+        hintLabel5 = new mapboxgl.Marker(elHint5).setLngLat(map.getCenter()).addTo(map);
+        hintLabel6 = new mapboxgl.Marker(elHint6).setLngLat(map.getCenter()).addTo(map);
 
 
         // 페이지 로드 시 'nw2' 레이어 숨기기
@@ -608,7 +707,7 @@
         return { type: 'Feature', geometry: { type: 'Polygon', coordinates: coordinates } };
     }
     
-    // 2번 요청('B'키 로직) + 5번 요청('N'/'M'키 로직)
+    // 3, 5번 요청
     function setLayerGroup(visibleGroup) { 
         const groups = ['base', 'nature', 'machine'];
         
@@ -631,12 +730,12 @@
             }
         });
 
-        // 14~64번(extra) 아이콘 토글
+        // 14~65번(extra) 아이콘 토글
         const extraVisibility = (visibleGroup === 'base') ? 'visible' : 'none';
-        for (let i = 14; i <= 64; i++) {
+        for (let i = 14; i <= totalIcons; i++) {
             const layerId = 'layer-' + i;
             if (map.getLayer(layerId)) {
-                // 2번 요청: B키가 켜져있으면(isInfoVisible=true) 'base'라도 숨김
+                // 3번 요청: B키가 켜져있으면(isInfoVisible=true) 'base'라도 숨김
                 if (isInfoVisible && extraVisibility === 'visible') {
                     map.setLayoutProperty(layerId, 'visibility', 'none');
                 } else {
@@ -646,19 +745,23 @@
         }
     }
 
-    // 2번 요청('B'키 로직) + 7번 요청('B'키 extra 숨김)
+    // 3번 요청: 'B'키로 텍스트/라인 토글 + Extra 숨기기
     function toggleInfoNames() { 
-        const newOpacity = isInfoVisible ? 0 : 1; 
-        const newLineVisibility = isInfoVisible ? 'none' : 'visible';
-        
-        // 텍스트/라인 토글
-        if (map.getLayoutProperty('layer-1', 'visibility') === 'visible') {
-            for (let i = 1; i <= 13; i++) {
-                const layerId = 'layer-' + i;
-                if (map.getLayer(layerId)) {
-                    try { map.setPaintProperty(layerId, 'text-opacity', newOpacity); } 
-                    catch (e) { console.error(`속성 변경 오류 (${layerId}):`, e); }
-                }
+        // 1. 텍스트/라인 표시 여부를 결정 (isInfoVisible 상태 토글)
+        isInfoVisible = !isInfoVisible; 
+        const newOpacity = isInfoVisible ? 1 : 0; 
+        const newLineVisibility = isInfoVisible ? 'visible' : 'none';
+
+        // 2. 'B'키를 누르면 *항상* 01-13.png(base)가 표시됨
+        //    이때 isInfoVisible이 true이므로, setLayerGroup은 Extra를 숨김
+        setLayerGroup('base');
+
+        // 3. 텍스트/라인 토글 적용
+        for (let i = 1; i <= 13; i++) {
+            const layerId = 'layer-' + i; 
+            if (map.getLayer(layerId)) {
+                try { map.setPaintProperty(layerId, 'text-opacity', newOpacity); } 
+                catch (e) { console.error(`속성 변경 오류 (${layerId}):`, e); }
             }
         }
         try {
@@ -667,32 +770,10 @@
                  map.setLayoutProperty(lineLayerId, 'visibility', newLineVisibility);
             } else { console.warn(`라인 레이어 ID '${lineLayerId}' 를 찾을 수 없습니다.`); }
         } catch (error) { console.error("라인 가시성 변경 중 오류:", error); }
-        
-        // 2번/7번 요청: Extra 아이콘 토글
-        // (isInfoVisible가 true가 될 때(첫 클릭) -> 'none')
-        // (isInfoVisible가 false가 될 때(두번째 클릭) -> 'visible')
-        const newExtraVisibility = isInfoVisible ? 'none' : 'visible';
-        for (let i = 14; i <= 64; i++) {
-            const layerId = 'layer-' + i;
-            if (map.getLayer(layerId)) {
-                let finalVisibility = newExtraVisibility;
-                // Extra를 'visible'로 하려는 경우 (두번째 클릭)
-                if (finalVisibility === 'visible') {
-                    // 현재 'base'('O'키) 모드인지 확인
-                    const isBaseMode = map.getLayoutProperty('layer-1', 'visibility') === 'visible';
-                    if (!isBaseMode) {
-                        finalVisibility = 'none'; // Base 모드가 아니면 계속 숨김
-                    }
-                }
-                map.setLayoutProperty(layerId, 'visibility', finalVisibility);
-            }
-        }
-
-        isInfoVisible = !isInfoVisible; // 상태 반전
     }
 
 
-    // --- [수정] 1번 요청: 카메라 이동 간격/속도 조절 ---
+    // 1, 6번: 카메라 속도/로직
     function startCameraModeInternal() {
         if (cameraInterval) return;
         console.log("카메라 자동 이동 시작");
@@ -715,10 +796,10 @@
         if(helpLabel) helpLabel.setLngLat(currentCenter);
         if(nearLabel) nearLabel.setLngLat(currentCenter);
         if(farLabel) farLabel.setLngLat(currentCenter);
+        // hintLabel들은 랜덤 위치로 직접 이동
 
         map.easeTo({ center: [newLng, newLat], zoom: randomZoom, duration: 2500 }); // 2.5초 동안 이동
     }
-    // --- [수정 완료] ---
 
 
     function showShapeLabels() {
@@ -731,10 +812,16 @@
         }, 3000);
     }
     
+    // 'C'키 텍스트(elHelp) 10초마다 랜덤 표시
     function showHelpLabel() {
-        if (!manualControlActive) return; 
-        elHelp.textContent = 'c 또는 ㅊ을 눌러주세요!';
+        if (!manualControlActive) return;
+        // 1. 랜덤 좌표
+        const randomIndex = Math.floor(Math.random() * allIconCoords.length);
+        const randomCoords = allIconCoords[randomIndex];
+        // 2. 마커 이동 및 표시
+        helpLabel.setLngLat(randomCoords);
         elHelp.style.display = 'block';
+        // 3. 3초 후 숨김
         setTimeout(() => {
             elHelp.style.display = 'none';
         }, 3000);
@@ -759,7 +846,7 @@
             const circlePx = map.project(circleCoords);
             const squarePx = map.project(squareCoords);
             
-            // 2번/7번 요청: Extra 아이콘이 보이는지 확인
+            // 3번 요청: Extra 아이콘이 보이는지 확인
             let isExtraVisible = false;
             try {
                 if (map.getLayer('layer-14')) {
@@ -768,7 +855,7 @@
             } catch(e) {}
 
             if (isExtraVisible) {
-                for (let i = 14; i <= 64; i++) {
+                for (let i = 14; i <= totalIcons; i++) {
                     if (iconData[i] && map.getLayer('layer-' + i)) {
                         const iconPx = map.project(iconData[i].coords);
                         const distCircle = Math.hypot(circlePx.x - iconPx.x, circlePx.y - iconPx.y);
@@ -870,15 +957,10 @@
         activeIconId = iconId;
         const data = popupData[iconId];
         
-        // 14~64번 아이콘 처리
+        // --- [수정] 2번 요청: 14~65번(Extra) 아이콘은 팝업을 띄우지 않음 ---
         if (!data) {
-            modalNumberText.textContent = iconId.toString().padStart(2, '0');
-            modalImage.style.display = 'none';
-            modalContainer.style.display = 'block';
-            popSound.currentTime = 0;
-            popSound.play();
-            updateFooterVisibility();
-            return;
+            activeIconId = null; // 팝업이 없음을 명확히 함
+            return; // 팝업을 띄우지 않고 함수 종료
         }
 
         // 1~13번 아이콘 처리
@@ -886,7 +968,7 @@
         modalNumberText.textContent = numberString;
         modalImage.src = `original-${numberString}.png`;
         modalImage.style.display = 'block';
-        modalContainer.style.display = 'block';
+        modalContainer.style.display = 'flex'; // 7번: flex로
         startVibration(modalImage, data.level, data.sound);
         updateFooterVisibility();
     }
@@ -902,38 +984,63 @@
     }
 
 
-    // --- [수정] 5, 6, 8번 요청: 정보 팝업창(I) 레이아웃 및 텍스트 수정 ---
+    // 8번 요청 + intro02.png 2배 및 테두리 제거
     function showInfoModal() {
+        // --- [오류 수정] `baseGridHTML` -> `imageGridHTML` ---
+        let imageGridHTML = ''; // <-- 'base' 이미지를 'imageGridHTML'로 생성
+        for (let i = 1; i <= 13; i++) {
+            imageGridHTML += `<img src="${i.toString().padStart(2, '0')}.png" alt="Image ${i}">`;
+        }
+        
+        let natureGridHTML = '';
+        for (let i = 1; i <= 13; i++) {
+            natureGridHTML += `<img src="nature-${i.toString().padStart(2, '0')}.png" alt="Nature Image ${i}">`;
+        }
+        let machineGridHTML = '';
+        for (let i = 1; i <= 13; i++) {
+            machineGridHTML += `<img src="machine-${i.toString().padStart(2, '0')}.png" alt="Machine Image ${i}">`;
+        }
+
         const content = `
+            <div style="text-align: left; margin-bottom: 20px;">
+                <img src="logo01.png" alt="Logo 01" class="info-modal-header-logo">
+            </div>
+
             <div class="info-modal-grid">
                 <div class="info-column">
-                    <img src="logo01.png" alt="Logo 01" class="logo">
-                    
-                    <h3 style="margin-top: 10px;">자연과 기계의 시각화</h3>
-                    <img src="intro02.png" alt="시각화 예시" style="margin-bottom: 15px; width: 50%;">
-                    
-                    <h3>소개</h3>
+                    <h3 style="margin-top: 0;">프로젝트 소개</h3>
                     <p>
-                        김채린은 평소 학교에서 집까지의 거리를 13가지의 구역으로 나누어 각 구역마다 <b>‘자연과 기계’가 어떤 흐름과 경계를 나타나는지</b> 게임을 차용해 비교하고자 한다.
-                    </p>
-                    
-                    <h3>과정</h3>
-                    <p>
-                        우선 걸어다니면서 13가지의 구역 속 사진, 영상, 소리를 수집한다. 그리고 13개 자연의 형태, 13개 기계의 형태를 시각적인 기호로 나눈다. 기호를 서로 교집합하여 13개의 구역에 다시 배치함으로써 <b>자연과 기계의 경계를 시각적으로 보여주게 된다.</b>
-                    </p>
-                    <p>
-                        또한 자연의 대표적인 형태 <b>'원'</b> 그리고 기계의 대표적인 형태 <b>'정사각형'</b>이 방향키에 맞춰 움직이게 된다. 만약 13가지 구역 중 한 구역 위에 서로 겹쳐지게 되면 <b>자연과 기계의 흐름을 청각적으로 보여주게 된다.</b>
+                        김채린은 평소 학교에서 집까지의 거리를 13가지의 구역으로 나누어 구역마다 <b>‘자연과 기계’의 어떤 흐름과 경계를 시각적으로 교집합</b>하고, 이를 게임 형태로 비교하는 지도입니다.
+                        <br><br>
+                        우선 걸어 다니면서 13가지의 구역 속 사진, 영상, 소리를 수집했하고, 13개 자연의 형태, 13개 기계의 형태를 시각적인 기호로 나누었습니다. 기호를 서로 교집합 하여 13개의 구역에 다시 배치함으로써 <b>자연과 기계의 경계를 시각적으로 </b> 보여주게 됩니다.
+                        <br><br>
+                        또한 자연의 대표적인 형태 <b>'원'</b> 그리고 기계의 대표적인 형태 <b>'정사각형'</b>이 방향키에 맞춰 움직입니다. 만약 13가지 구역 중 한 구역 위에 서로 겹쳐게 되면 <b>자연과 기계의 흐름을 청각적으로 </b>보여주게 됩니다 (수집했던 사진 및 소리가 나타납니다).
                     </p>
                     
                     <p class="copyright-text">
-                        ⓒ Chaerin Kim. All rights reserved. <br> 이 웹사이트의 권한 및 저작권은 '김채린'에게 있습니다. <br>  문의 내용은 e.chaerinkim@gmail.com으로 보내주세요.
+                        ⓒ Chaerin Kim. All rights reserved. <br> 문의 내용은 e.chaerinkim@gmail.com으로 보내주세요.
                     </p>
                 </div>
 
                 <div class="info-column">
-                    <h3 style="margin-top: 10px;">조작 방법</h3>
+                    <h3 style="margin-top: 0;">조작 방법</h3>
                     <img src="intro_main.png" alt="게임 방법">
                     
+                    <h3>13가지 자연과 기계</h3>
+                    <img src="intro02.png" alt="시각화 예시" style="margin-bottom: 15px; width: 100%;">
+                    
+                    <div class="image-grid-13">
+                        ${imageGridHTML} </div>
+
+                    <h3>자연 시각화</h3>
+                    <div class="image-grid-13">
+                        ${natureGridHTML}
+                    </div>
+
+                    <h3>기계 시각화</h3>
+                    <div class="image-grid-13">
+                        ${machineGridHTML}
+                    </div>
                     </div>
             </div>
         `;
@@ -942,13 +1049,14 @@
         infoModalContainer.style.display = 'block';
         updateFooterVisibility();
     }
-    // --- [수정 완료] ---
 
 
     function hideInfoModal() {
         infoModalContainer.style.display = 'none';
         updateFooterVisibility();
     }
+    
+    // 팝업 배경 클릭 시 닫기
     modalContainer.onclick = function(event) { if (event.target == modalContainer) hideModal(); } 
     infoModalContainer.onclick = function(event) { if (event.target == infoModalContainer) hideInfoModal(); } 
 
@@ -994,13 +1102,14 @@
         const circlePx = map.project(circleCoords);
         const squarePx = map.project(squareCoords);
 
-        // 자동 크기 조절
-        const randomScaleCircle = 1 + (Math.random() * 2); 
+        // 5번 요청: 자동 확대/축소 범위 0.3배 줄임
+        const randomScaleCircle = 1 + (Math.random() * 1.4); 
         currentCircleRadius_px = initialCircleRadius_px * randomScaleCircle; 
         map.setPaintProperty('circle-layer', 'circle-radius', currentCircleRadius_px);
         
-        const randomScaleSquare = 1 + (Math.random() * 2); 
+        const randomScaleSquare = 1 + (Math.random() * 1.4); 
         currentSquareSize_deg = initialSquareSize_deg * randomScaleSquare; 
+        
         const newPolygon = createSquarePolygon(squareCoords, currentSquareSize_deg); 
         map.getSource('square-source').setData(newPolygon);
 
@@ -1044,7 +1153,8 @@
             }
         }
         
-        // 14~64번 아이콘 체크
+        // [수정] 2번 요청: 14~65번 팝업 로직 비활성화
+        // 1~13번 팝업이 안 떴을 경우에만 근접 체크
         if (!overlapFound) {
             let isExtraVisible = false;
             try {
@@ -1054,11 +1164,18 @@
             } catch(e) {}
 
             if (isExtraVisible) { 
-                for (let i = 14; i <= 64; i++) {
+                for (let i = 14; i <= totalIcons; i++) {
                      const key = i.toString();
                      if (!iconData[key] || !map.getLayer('layer-' + key)) continue;
 
                      const iconPx = map.project(iconData[key].coords);
+                     const distCircle = Math.hypot(circlePx.x - iconPx.x, circlePx.y - iconPx.y);
+                     const distSquare = Math.hypot(squarePx.x - iconPx.x, squarePx.y - iconPx.y);
+                     
+                     // 근접 체크만 수행
+                     if (distCircle < 150 || distSquare < 150) { isClose = true; }
+                     
+                     /* [삭제] 2번 요청: Extra 아이콘은 충돌해도 팝업을 띄우지 않음
                      if (shapesCollided) {
                         const distance = Math.hypot(circlePx.x - iconPx.x, circlePx.y - iconPx.y);
                         if (distance < hitRadius) {
@@ -1067,12 +1184,14 @@
                             break; 
                         }
                      }
+                     */
                 }
             }
         }
 
         showProximityLabels(isClose);
 
+        // 2번 요청: closestIconId는 1~13번일 때만 값을 가짐
         if (overlapFound && closestIconId) {
             stopAll();
             console.log(`충돌 감지! [아이콘 ${closestIconId}번] 팝업 표시`);
@@ -1088,7 +1207,7 @@
         walkSound.play().catch(e => {/* 무시 */});
     }
 
-    // 9번 요청: pop.mp3 재생 헬퍼 함수
+    // 4번 요청: pop.mp3 재생 (누를 때마다)
     function playPopSound() {
         if (!popEffectSound) return;
         try {
@@ -1097,7 +1216,7 @@
         } catch (e) {}
     }
 
-    // --- [수정] 1, 3, 4번 요청: N/M 사운드 중지 헬퍼 함수 ---
+    // 3, 4번 요청: N/M 사운드 중지
     function stopThemeSounds() {
         if (natureSound) {
             natureSound.pause();
@@ -1116,8 +1235,6 @@
             machineSoundTimeout = null;
         }
     }
-    // --- [수정 완료] ---
-
 
     function stopAll() {
         if (manualControlActive) { console.log("정지 (Spacebar 또는 충돌)"); }
@@ -1139,20 +1256,99 @@
             clearInterval(helpTextInterval);
             helpTextInterval = null;
         }
+        
+        // 1번 요청: 힌트 타이머 중지
+        if (labelHintInterval1) { clearInterval(labelHintInterval1); labelHintInterval1 = null; }
+        if (labelHintInterval2) { clearInterval(labelHintInterval2); labelHintInterval2 = null; }
+        if (labelHintInterval3) { clearInterval(labelHintInterval3); labelHintInterval3 = null; }
+        if (movementInactivityTimer) clearTimeout(movementInactivityTimer); // 6번
+        
+        // 4단계: 순차 라벨 타이머 중지
+        if (labelHintSequenceInterval) { clearInterval(labelHintSequenceInterval); labelHintSequenceInterval = null; }
+        clearTimeout(labelSequenceTimer1);
+        clearTimeout(labelSequenceTimer2);
+        clearTimeout(labelSequenceTimer3);
+        clearTimeout(labelSequenceTimer4);
+        clearTimeout(labelSequenceTimer5);
+        
         elMachine.style.display = 'none';
         elNature.style.display = 'none';
         elHelp.style.display = 'none';
         elNear.style.display = 'none'; 
         elFar.style.display = 'none'; 
+        elHint1.style.display = 'none'; // 1번
+        elHint2.style.display = 'none';
+        elHint3.style.display = 'none';
+        elHint4.style.display = 'none'; // 1-3단계
+        elHint5.style.display = 'none';
+        elHint6.style.display = 'none';
 
         farTimer = 0; 
         nearCooldown = false;
         farCooldown = false;
         if (walkSound) walkSound.pause();
         
-        // [수정] 3, 4번: 게임 정지 시 N/M 사운드도 중지
         stopThemeSounds();
      }
+
+    // 6번 요청: 자동카메라 재시작 타이머
+    function startInactivityTimer() {
+        if (movementInactivityTimer) clearTimeout(movementInactivityTimer);
+        movementInactivityTimer = setTimeout(() => {
+            if (manualControlActive) {
+                startCameraModeInternal(); // 자동카메라 시작
+            }
+        }, 5000); // 5초간 입력 없으면
+    }
+    
+    // 1번 요청: 맵 힌트 라벨 표시 함수
+    function showRandomLabel(marker, el) {
+        if (!manualControlActive) return;
+        // 1. 랜덤 좌표
+        const randomIndex = Math.floor(Math.random() * allIconCoords.length);
+        const randomCoords = allIconCoords[randomIndex];
+        // 2. 마커 이동 및 표시
+        marker.setLngLat(randomCoords);
+        el.style.display = 'block';
+        // 3. 3초 후 숨김
+        setTimeout(() => {
+            el.style.display = 'none';
+        }, 3000);
+    }
+    
+    // 4단계: 순차 라벨 함수 추가
+    function showLabelSequence() {
+        if (!manualControlActive) return;
+
+        // 1. '팝업창을...' (0초 시작)
+        showRandomLabel(hintLabel1, elHint1);
+        
+        // 2. '소리도...' (6초 뒤 시작)
+        labelSequenceTimer1 = setTimeout(() => {
+            showRandomLabel(hintLabel2, elHint2);
+        }, 6000); // (1번 3초 표시 + 3초 대기)
+
+        // 3. '발자국...' (12초 뒤 시작)
+        labelSequenceTimer2 = setTimeout(() => {
+            showRandomLabel(hintLabel3, elHint3);
+        }, 12000);
+
+        // 4. '터벅 터벅,' (18초 뒤 시작)
+        labelSequenceTimer3 = setTimeout(() => {
+            showRandomLabel(hintLabel4, elHint4);
+        }, 18000);
+
+        // 5. '13가지 구역에서...' (24초 뒤 시작)
+        labelSequenceTimer4 = setTimeout(() => {
+            showRandomLabel(hintLabel5, elHint5);
+        }, 24000);
+
+        // 6. '겹쳐지면...' (30초 뒤 시작)
+        labelSequenceTimer5 = setTimeout(() => {
+            showRandomLabel(hintLabel6, elHint6);
+        }, 30000);
+    }
+
 
     function startGameplay() {
         if (manualControlActive) return; 
@@ -1166,18 +1362,25 @@
         if (!shapeScaleInterval) { 
             shapeScaleInterval = setInterval(gameLoop, 1000); 
         }
-        startCameraModeInternal();
+        // 6번: 자동카메라는 비활성화 타이머로 제어
+        startInactivityTimer(); 
 
         if (!shapeTextInterval) { 
             showShapeLabels(); 
             shapeTextInterval = setInterval(showShapeLabels, 10000); 
         }
-        if (!helpTextInterval) {
-            setTimeout(() => {
-                showHelpLabel();
-                helpTextInterval = setInterval(showHelpLabel, 13000);
-            }, 5000);
+        
+        // 4단계: 순차 라벨 인터벌 시작
+        if (!labelHintSequenceInterval) {
+            showLabelSequence(); // 즉시 1회 실행
+            labelHintSequenceInterval = setInterval(showLabelSequence, 36000); // 30초(시퀀스) + 3초(표시) + 3초(여유)
         }
+        
+        // elHelp(C키 텍스트)도 10초마다 랜덤 표시
+        if (!helpTextInterval) {
+            helpTextInterval = setInterval(showHelpLabel, 13000); // 13초마다
+        }
+
 
         if (!isFooterToggledOn) { 
             isFooterToggledOn = true;
@@ -1190,7 +1393,7 @@
     }
 
     function resetView() {
-        stopAll(); // stopAll이 stopThemeSounds를 호출함
+        stopAll();
         hideModal();
         hideInfoModal();
         
@@ -1211,6 +1414,13 @@
         if(helpLabel) helpLabel.setLngLat(map.getCenter());
         if(nearLabel) nearLabel.setLngLat(map.getCenter());
         if(farLabel) farLabel.setLngLat(map.getCenter());
+        if(hintLabel1) hintLabel1.setLngLat(map.getCenter());
+        if(hintLabel2) hintLabel2.setLngLat(map.getCenter());
+        if(hintLabel3) hintLabel3.setLngLat(map.getCenter());
+        if(hintLabel4) hintLabel4.setLngLat(map.getCenter()); // 1-3단계
+        if(hintLabel5) hintLabel5.setLngLat(map.getCenter());
+        if(hintLabel6) hintLabel6.setLngLat(map.getCenter());
+
         
         farTimer = 0; 
         
@@ -1238,56 +1448,80 @@
     function startOrRestartControl() {
         // 3, 4번: 스페이스바 누르면 N/M 사운드 중지
         stopThemeSounds();
-        // 9번: 스페이스바 pop.mp3 재생
+        // 4번: 스페이스바 pop.mp3 재생
         playPopSound(); 
 
-        if (modalContainer.style.display === 'block') {
+        if (modalContainer.style.display !== 'none' || 
+            infoModalContainer.style.display !== 'none')
+        {
             resetView();
             return;
         }
-        if (infoModalContainer.style.display === 'block') {
-            return; 
-        }
 
-        if (introModalContainer.style.display !== 'none') {
-            introModalContainer.style.display = 'none'; 
+        // [수정] 인트로 화면 닫기 로직을 keydown 리스너로 이동시킴
+        if (manualControlActive) {
+            stopAll();
+        } else {
             startGameplay(); 
-        } 
-        else {
-            if (manualControlActive) {
-                stopAll();
-            } else {
-                startGameplay(); 
-            }
         }
     }
 
 
     /**
-     * 키보드 이벤트 리스너 (3, 4번 요청: 사운드 중지 로직 추가)
+     * 키보드 이벤트 리스너 (인트로 화면 오류 수정)
      */
     window.addEventListener('keydown', (e) => {
         
-        // --- 1. 항상 허용되는 키 (팝업 토글) ---
+        // --- [수정] 1. 인트로 팝업이 켜져 있을 때의 키 처리 ---
+        if (introModalContainer.style.display !== 'none') {
+            if (e.key === 'i' || e.key === 'I' || e.key === 'ㅑ') {
+                e.preventDefault();
+                playPopSound();
+                showInfoModal(); // 인트로 위로 정보창 띄우기
+            } 
+            else if (e.key === ' ' || e.key === 'Spacebar') {
+                e.preventDefault();
+                playPopSound();
+                introModalContainer.style.display = 'none'; 
+                startGameplay(); // 게임 시작 (한 번만)
+            }
+            // 'x'나 'Escape'로 정보창 닫기 (인트로가 켜진 상태에서)
+            else if (e.key === 'x' || e.key === 'X' || e.key === 'ㅌ' || e.key === 'ㅋ' || e.key === 'Escape') {
+                 e.preventDefault();
+                 if (infoModalContainer.style.display === 'block') {
+                     hideInfoModal();
+                 }
+            }
+            return; // 다른 모든 키는 무시
+        }
+
+
+        // --- 2. 인트로가 꺼진 후 (메인 화면) ---
+
         if (e.key === 'i' || e.key === 'I' || e.key === 'ㅑ') {
             e.preventDefault();
-            stopThemeSounds(); // 3, 4번
-            playPopSound(); // 9번
-            
+            stopThemeSounds();
+            playPopSound(); 
             if (infoModalContainer.style.display === 'block') {
                 hideInfoModal();
             } else {
-                if (modalContainer.style.display !== 'block') {
-                    showInfoModal();
-                }
+                if (modalContainer.style.display !== 'none') hideModal();
+                showInfoModal();
             }
+            return; 
+        }
+
+        if (e.key === ' ' || e.key === 'Spacebar') {
+            e.preventDefault();
+            // 스페이스바를 누르면 (메인 화면에서는) 게임 정지/시작 토글
+            startOrRestartControl(); 
             return; 
         }
 
         if (e.key === 'x' || e.key === 'X' || e.key === 'ㅌ' || e.key === 'ㅋ' || e.key === 'Escape') {
              e.preventDefault();
-             stopThemeSounds(); // 3, 4번
-             if (modalContainer.style.display === 'block') {
+             stopThemeSounds();
+             if (modalContainer.style.display !== 'none') {
                  hideModal();
                  return;
              }
@@ -1297,17 +1531,6 @@
              }
         }
 
-        if (e.key === ' ' || e.key === 'Spacebar') {
-            e.preventDefault();
-            // 3, 4, 9번: 사운드 중지/재생은 startOrRestartControl 함수 내부로 이동
-            startOrRestartControl(); 
-            return; 
-        }
-
-        // --- 2. 인트로 팝업이 켜져 있으면, 나머지 키는 모두 무시 ---
-        if (introModalContainer.style.display !== 'none') {
-            return; 
-        }
 
         // --- 3. '메인 화면'에서만 동작하는 키 ---
         
@@ -1315,44 +1538,52 @@
         if (e.key === 'c' || e.key === 'C' || e.key === 'ㅊ') {
             e.preventDefault();
             stopThemeSounds(); // 3, 4번
-            playPopSound(); // 9번
-            toggleFooter();
+            playPopSound(); // 4번
+            toggleFooter(); // 푸터 토글 복원
             return;
         }
 
         // 'V' 또는 'ㅍ' 키 (초기 뷰)
         if (e.key === 'v' || e.key === 'V' || e.key === 'ㅍ') {
             e.preventDefault();
-            // 3, 4번: resetView가 stopAll을 호출하므로 사운드 자동 중지
+            playPopSound(); // 4번
             resetView();
             return;
         }
         
-        // 'O' 또는 'ㅐ' 키 (Base 레이어)
+        // 'O' 또는 'ㅐ' 키 (Base 레이어 + Extras)
         if (e.key === 'o' || e.key === 'O' || e.key === 'ㅐ') {
             e.preventDefault();
             stopThemeSounds(); // 3, 4번
-            setLayerGroup('base');
+            
+            // 3번: 'O'키는 'B'키 상태(텍스트/라인)를 강제 해제
+            if (isInfoVisible) {
+                isInfoVisible = false; // B키 상태 끄기
+                toggleInfoNames(); // 텍스트/라인 끄는 로직 실행
+                isInfoVisible = false; // (다시 false로 확실하게)
+            }
+            
+            setLayerGroup('base'); // Extra가 보이도록 'base' 호출
             return;
         }
 
-        // 'B' 또는 'ㅠ' 키 (정보 토글)
+        // 'B' 또는 'ㅠ' 키 (Base 레이어 (No Extras) + 텍스트/라인 토글)
         if (e.key === 'b' || e.key === 'B' || e.key === 'ㅠ') {
             e.preventDefault();
             stopThemeSounds(); // 3, 4번
-            playPopSound(); // 9번
-            toggleInfoNames();
+            playPopSound(); // 4번
+            toggleInfoNames(); // 수정된 토글 함수 호출
             return;
         }
         
         // 'N' 또는 'ㅜ' 키 (Nature 레이어)
         if (e.key === 'n' || e.key === 'N' || e.key === 'ㅜ') {
             e.preventDefault();
-            stopThemeSounds(); // 3, 4번: 다른 테마(M) 중지
+            stopThemeSounds(); // 3, 4번
             if (natureSound) { 
                 natureSound.currentTime = 0; 
                 natureSound.play().catch(e=>{}); 
-                // [수정] 3번: 10초 타이머
+                // 3번: 10초 타이머
                 if (natureSoundTimeout) clearTimeout(natureSoundTimeout);
                 natureSoundTimeout = setTimeout(() => {
                     natureSound.pause();
@@ -1366,11 +1597,11 @@
         // 'M' 또는 'ㅡ' 키 (Machine 레이어)
         if (e.key === 'm' || e.key === 'M' || e.key === 'ㅡ') {
             e.preventDefault();
-            stopThemeSounds(); // 3, 4번: 다른 테마(N) 중지
+            stopThemeSounds(); // 3, 4번
             if (machineSound) { 
                 machineSound.currentTime = 0; 
                 machineSound.play().catch(e=>{}); 
-                // [수정] 4번: 10초 타이머
+                // 4번: 10초 타이머
                 if (machineSoundTimeout) clearTimeout(machineSoundTimeout);
                 machineSoundTimeout = setTimeout(() => {
                     machineSound.pause();
@@ -1399,7 +1630,11 @@
 
         if (moved) {
             e.preventDefault();
-            stopThemeSounds(); // 3, 4번: 이동 시 테마 사운드 중지
+            stopThemeSounds(); // 3, 4번
+            // 6번: 자동카메라 중지 및 재시작 타이머
+            stopCameraModeInternal(); 
+            startInactivityTimer(); 
+            
             moveObject(targetType, direction);
         }
     });
